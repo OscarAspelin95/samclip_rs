@@ -55,6 +55,8 @@ pub fn bam_parse(
 ) {
     let mut bam_reader: Reader =
         bam::Reader::from_path(&bam).expect("Failed to read BAM file {bam}.");
+
+    // Not sure exactly what this does.
     bam_reader.set_threads(threads).unwrap();
 
     // Hashmap of reference names and lengths.
@@ -62,7 +64,10 @@ pub fn bam_parse(
 
     // We extract the original bam header and use it in the new bam file.
     let header = Header::from_template(&bam_reader.header());
+
+    // Output file.
     let mut bam_out = Writer::from_path(outfile, &header, bam::Format::Bam).unwrap();
+    // Not sure exactly what this does.
     bam_out.set_threads(threads).unwrap();
 
     let mut records = bam_reader.records();
@@ -75,9 +80,13 @@ pub fn bam_parse(
             continue;
         }
 
-        // Also, do a quick check for any clipping at all in alignment.
         let cigar_stats = record.cigar_stats_nucleotides();
 
+        // Do a quick check of whether or not there are any
+        // soft clipped alignments:
+        // * If no clipping, record is valid.
+        // * If short enough clipping, record is valid.
+        // * Otherwise, we need to check.
         match cigar_stats.get(&Cigar::SoftClip(0)) {
             None => {
                 // Record is valid (no clip), write to file.
