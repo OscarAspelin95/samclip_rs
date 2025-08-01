@@ -1,7 +1,7 @@
 use rust_htslib::bam::Record;
 use rust_htslib::bam::record::Cigar;
 
-use crate::types::AlignmentType;
+use crate::samclip::AlignmentType;
 
 #[inline]
 pub fn is_primary(record: &Record) -> bool {

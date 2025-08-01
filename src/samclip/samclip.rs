@@ -6,11 +6,10 @@ use rust_htslib::{bam, bam::Read, bam::Reader, bam::Writer};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::alignments::{
-    alignment_type, is_primary, valid_end_alignment, valid_middle_alignment, valid_start_alignment,
+use crate::samclip::{
+    AlignmentType, Reference, alignment_type, is_primary, valid_end_alignment,
+    valid_middle_alignment, valid_start_alignment,
 };
-
-use crate::types::{AlignmentType, Reference};
 
 /// From the BAM header, extract reference information (names and lengths).
 /// We do this to avoid having to read from a provided .fasta or .fasta.fai file.
@@ -46,7 +45,7 @@ fn get_reference_hmap(bam: &Reader) -> HashMap<usize, Reference> {
     return reference_hmap;
 }
 
-pub fn bam_parse(
+pub fn samclip_run(
     bam: &PathBuf,
     outfile: &PathBuf,
     threads: usize,
@@ -74,7 +73,11 @@ pub fn bam_parse(
     let mut num_invalid: usize = 0;
 
     info!("Parsing records...");
-    while let Some(Ok(record)) = records.next() {
+    while let Some(record) = records.next() {
+        let record = match record {
+            Ok(record) => record,
+            Err(_) => continue,
+        };
         // We only consider primary alignments.
         if !is_primary(&record) {
             continue;
