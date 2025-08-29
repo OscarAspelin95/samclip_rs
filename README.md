@@ -1,6 +1,8 @@
 # samclip_rs
 🚧 Work in progress for re-implementing samclip (https://github.com/tseemann/samclip) by Torsten Seemann.
 
+NOTE - the original samclip is written in Perl, which is ridiculously fast at text procesing. I highly doubt that this version is faster...
+
 ## Requirements
 - Linux OS (Ubuntu 24.04.2)
 - Rust >= 1.88.0
